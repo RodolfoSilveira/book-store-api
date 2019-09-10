@@ -1,4 +1,14 @@
-<h2> Hello {{ email }}</h2>
+<h2> Olá {{ name }},</h2>
 <p>
-  Welcome to the yardstick club, here's your getting started guide
+  Parece que você solicitou uma recuperação da sua senha, caso queira prosseguir
+  clique no link abaixo:
+</p>
+<p>
+<a href="{{ resetPasswordUrl }}" target="_blank">Recuperar Senha</a>
+</p>
+<p>
+  Caso não tenha sido você quem fez a solicitação, favor descartar o e-mail.
+</p>
+<p>
+  <strong>Equipe BookStore</strong>
 </p>

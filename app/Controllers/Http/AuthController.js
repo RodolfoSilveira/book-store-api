@@ -3,7 +3,9 @@
 const User = use('App/Models/User')
 const Helpers = use('Helpers')
 const Mail = use('Mail')
-
+const { randomBytes } = require('crypto')
+const { promisify } = require('util')
+const Env = use('Env')
 class AuthController {
   async login ({ request, auth }) {
     const { email, password } = request.all()
@@ -42,14 +44,28 @@ class AuthController {
   }
 
   async forgotPassword ({ request }) {
-    const { email } = request.only(['email'])
+    const email = request.input('email')
 
-    await Mail.send('emails.welcome', { email }, (message) => {
-      message
-        .to(email)
-        .from('book@contato.com')
-        .subject('Welcome to yardstick')
+    const user = await User.findByOrFail('email', email)
+
+    const random = await promisify(randomBytes)(16)
+    const token = random.toString('hex')
+
+    await user.tokens().create({
+      token,
+      type: 'forgotpassword'
     })
+
+    const resetPasswordUrl = `${Env.get('FRONT_URL')}/reset?token=${token}`
+
+    await Mail.send('emails.welcome', { name: user.username, resetPasswordUrl },
+      (message) => {
+        message
+          .to(email)
+          .from('book@contato.com')
+          .subject('Welcome to yardstick')
+      }
+    )
   }
 }
 
